@@ -1,0 +1,284 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout title="404 — Page Not Found" description="The page you're looking for doesn't exist.">
+  <div class="not-found">
+    <div class="nf-stripe"></div>
+
+    <div class="nf-inner">
+      <div class="nf-glitch" aria-hidden="true">
+        <span class="glitch-base">404</span>
+        <span class="glitch-a">404</span>
+        <span class="glitch-b">404</span>
+      </div>
+
+      <div class="nf-divider"></div>
+
+      <div class="nf-eyebrow">Page Not Found</div>
+      <h1 class="nf-title">
+        This page took a
+        <span class="nf-gradient">wrong turn.</span>
+      </h1>
+      <p class="nf-body">
+        The URL you followed doesn't exist — it may have moved, been deleted, or was never here to begin with.
+      </p>
+
+      <div class="nf-actions">
+        <a href="/" class="btn-primary">← Back to home</a>
+        <a href="/posts" class="btn-ghost">Browse all posts</a>
+      </div>
+
+      <div class="nf-suggestions">
+        <div class="sug-label">Or explore a topic</div>
+        <div class="sug-pills">
+          <a href="/for-business" class="sug-pill pill-c">For Business</a>
+          <a href="/design" class="sug-pill pill-m">Design</a>
+          <a href="/portfolios" class="sug-pill pill-g">Portfolios</a>
+          <a href="/behind-the-build" class="sug-pill pill-a">Behind the Build</a>
+          <a href="/guides" class="sug-pill pill-w">Guides</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+.not-found {
+  position: relative;
+  overflow: hidden;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.25rem;
+}
+
+.nf-stripe {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent, transparent 38px,
+    rgba(0, 200, 255, 0.04) 38px,
+    rgba(174, 0, 255, 0.035) 39px
+  );
+  pointer-events: none;
+}
+
+/* Radial glow behind the 404 */
+.not-found::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse at center,
+    rgba(0, 200, 255, 0.06) 0%,
+    rgba(174, 0, 255, 0.04) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.nf-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* ── GLITCH NUMBER ── */
+.nf-glitch {
+  position: relative;
+  font-family: var(--font-title);
+  font-size: clamp(5rem, 20vw, 10rem);
+  line-height: 1;
+  letter-spacing: -2px;
+  color: rgba(255, 255, 255, 0.07);
+  margin-bottom: 1.5rem;
+  user-select: none;
+  width: 100%;
+}
+
+.glitch-base {
+  display: block;
+}
+
+.glitch-a,
+.glitch-b {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+}
+
+.glitch-a {
+  color: rgba(0, 200, 255, 0.15);
+  animation: glitch-a 3.5s infinite steps(1);
+  clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
+}
+
+.glitch-b {
+  color: rgba(174, 0, 255, 0.12);
+  animation: glitch-b 3.5s infinite steps(1);
+  clip-path: polygon(0 55%, 100% 55%, 100% 75%, 0 75%);
+}
+
+@keyframes glitch-a {
+  0%, 90%, 100% { transform: translate(0); }
+  92%           { transform: translate(-4px, 1px); }
+  94%           { transform: translate(3px, -2px); }
+  96%           { transform: translate(-2px, 2px); }
+}
+
+@keyframes glitch-b {
+  0%, 88%, 100% { transform: translate(0); }
+  90%           { transform: translate(4px, -1px); }
+  93%           { transform: translate(-3px, 2px); }
+  96%           { transform: translate(2px, -1px); }
+}
+
+/* ── DIVIDER ── */
+.nf-divider {
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--blue), transparent);
+  margin-bottom: 1.25rem;
+}
+
+/* ── COPY ── */
+.nf-eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--blue);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.nf-title {
+  font-family: var(--font-title);
+  font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl));
+  line-height: 1.05;
+  letter-spacing: 0.5px;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.nf-gradient {
+  display: block;
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nf-body {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.5);
+  font-weight: 300;
+  line-height: 1.75;
+  max-width: 420px;
+  margin-bottom: 2rem;
+}
+
+/* ── ACTIONS ── */
+.nf-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.btn-primary {
+  background: transparent;
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 4px;
+  font-size: var(--text-xs);
+  font-family: var(--font-sub);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  display: inline-block;
+}
+
+.btn-primary:hover { background: var(--blue); color: #000; }
+
+.btn-ghost {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  background: none;
+  border: none;
+  font-family: var(--font-sub);
+  transition: color 0.2s;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-ghost:hover { color: var(--white); }
+
+/* ── SUGGESTIONS ── */
+.nf-suggestions {
+  border-top: 0.5px solid var(--border);
+  padding-top: 1.5rem;
+  width: 100%;
+}
+
+.sug-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 0.85rem;
+}
+
+.sug-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sug-pill {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 0.5px;
+  padding: 5px 12px;
+  border-radius: 3px;
+  text-decoration: none;
+  border: 0.5px solid;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.sug-pill:hover { opacity: 0.75; transform: translateY(-1px); }
+
+.pill-c { color: var(--blue);   border-color: rgba(0,200,255,0.3);   background: rgba(0,200,255,0.05); }
+.pill-m { color: #cc66ff;        border-color: rgba(204,0,255,0.3);   background: rgba(204,0,255,0.05); }
+.pill-g { color: #00dd77;        border-color: rgba(0,255,136,0.3);   background: rgba(0,255,136,0.05); }
+.pill-a { color: #ffaa00;        border-color: rgba(255,170,0,0.3);   background: rgba(255,170,0,0.05); }
+.pill-w { color: #c8c8c8;        border-color: rgba(200,200,200,0.2); background: rgba(200,200,200,0.04); }
+
+/* ── MEDIA QUERIES ── */
+@media (min-width: 480px) {
+  .not-found { padding: 4rem 1.5rem; }
+}
+
+@media (min-width: 768px) {
+  .not-found { padding: 5rem 2rem; }
+  .nf-inner { align-items: flex-start; }
+}
+
+@media (min-width: 1024px) {
+  .not-found { padding: 5rem 2.5rem; }
+}
+</style>

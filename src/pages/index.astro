@@ -18,7 +18,7 @@ const sorted = allPosts.sort((a, b) =>
 );
 
 const featured = sorted.find(p => p.data.featured) ?? sorted[0];
-const recent = sorted.filter(p => p !== featured).slice(0, 3);
+const recent = sorted.filter(p => p !== featured).slice(0, 4);
 
 const behindTheBuild = (await getCollection('behind-the-build').catch(() => []))
   .filter(p => !p.data.draft)
@@ -51,6 +51,7 @@ const collectionCounts = {
   'portfolios':       (await getCollection('portfolios').catch(() => [])).filter(p => !p.data.draft).length,
   'behind-the-build': (await getCollection('behind-the-build').catch(() => [])).filter(p => !p.data.draft).length,
   'guides':           (await getCollection('guides').catch(() => [])).filter(p => !p.data.draft).length,
+  'case-studies':     (await getCollection('case-studies').catch(() => [])).filter(p => !p.data.draft).length,
 };
 
 // Pre-resolve cover images for recent posts
@@ -60,6 +61,12 @@ const recentWithImages = await Promise.all(
     coverImage: post.data.cover ? await getPostImage(post.data.cover) : null,
   }))
 );
+
+// Pull case studies for sidebar
+const caseStudies = (await getCollection('case-studies').catch(() => []))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+  .slice(0, 3);
 ---
 
 <Layout>
@@ -185,7 +192,7 @@ const recentWithImages = await Promise.all(
     <!-- BEHIND THE BUILD + SIDEBAR -->
     <div class="section-header" style="margin-top: 3rem;">
       <h2 class="section-title">Behind the Build</h2>
-      <a href="/behind-the-build" class="section-link">All case studies →</a>
+      <a href="/behind-the-build" class="section-link">All Builds →</a>
     </div>
 
     <div class="split">
@@ -237,6 +244,10 @@ const recentWithImages = await Promise.all(
                 <span class="cat-pill-name"><span class="cpd dot-w"></span>Guides</span>
                 <span class="cat-pill-count">{collectionCounts['guides']}</span>
             </a>
+            <a href="/case-studies" class="cat-pill">
+                <span class="cat-pill-name"><span class="cpd dot-c"></span>Case Studies</span>
+                <span class="cat-pill-count">{collectionCounts['case-studies']}</span>
+            </a>
           </div>
         </div>
       </aside>
@@ -245,16 +256,55 @@ const recentWithImages = await Promise.all(
   </main>
 
   <!-- SKYZER BAND -->
-  <div class="skyzer-band">
-    <div class="sky-left">
-      <div class="sky-icon">SN</div>
-      <div class="sky-text">
-        <p>This blog is brought to you by Skyzer Networks</p>
-        <span>Web design for small businesses and portfolios</span>
-      </div>
+    <div class="skyzer-band">
+        <div class="sky-left">
+            <div class="sky-icon">SN</div>
+            <div class="sky-text">
+                <p>This blog is brought to you by Skyzer Networks</p>
+                <span>Web design for small businesses and portfolios</span>
+            </div>
+        </div>
+        <a href="https://skyzernetworks.com" class="sky-link">Visit skyzernetworks.com →</a>
     </div>
-    <a href="https://skyzernetworks.com" class="sky-link">Visit skyzernetworks.com →</a>
-  </div>
+
+    <!-- CASE STUDIES BAND -->
+    <section class="cs-band">
+    <div class="cs-stripe"></div>
+    <div class="cs-inner">
+        <div class="cs-header">
+        <div class="cs-eyebrow">Deep Research</div>
+        <h2 class="cs-title">Case Studies</h2>
+        <p class="cs-sub">Long-form research and in-depth analysis on what actually works.</p>
+        <a href="/case-studies" class="section-link" style="margin-top: 0.5rem; display:inline-block;">See all case studies →</a>
+        </div>
+        {caseStudies.length > 0 ? (
+        <div class="cs-list">
+            {caseStudies.map((post, i) => {
+            const sub = subMeta[post.data.subcategory ?? ''] ?? { label: 'Case Study', colorClass: 'tag-c' };
+            return (
+                <a href={`/case-studies/${post.id}`} class="cs-row">
+                <div class="cs-num">{String(i + 1).padStart(2, '0')}</div>
+                <div class="cs-body">
+                    <div class="article-tags" style="margin-bottom: 0.4rem;">
+                    <span class={`tag ${sub.colorClass}`}>{sub.label}</span>
+                    </div>
+                    <h3 class="cs-row-title">{post.data.title}</h3>
+                    <p class="cs-row-excerpt">{post.data.description}</p>
+                    <div class="lr-meta">
+                    <span>{post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span>Long read</span>
+                    </div>
+                </div>
+                <div class="cs-arrow">→</div>
+                </a>
+            );
+            })}
+        </div>
+        ) : (
+        <div class="empty-state" style="color: rgba(245,243,239,0.4);">No case studies yet — check back soon.</div>
+        )}
+    </div>
+    </section>
 </Layout>
 
 <style>
@@ -991,5 +1041,167 @@ const recentWithImages = await Promise.all(
     .featured-card {
         max-width: 460px;
     }
+}
+
+/* ── CASE STUDIES BAND ── */
+.cs-band {
+  position: relative;
+  overflow: hidden;
+  background: var(--mid);
+  border-top: 0.5px solid var(--border);
+  padding: 3.5rem 1.25rem 4rem;
+}
+
+.cs-stripe {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent, transparent 38px,
+    rgba(0, 200, 255, 0.04) 38px,
+    rgba(174, 0, 255, 0.035) 39px
+  );
+  pointer-events: none;
+}
+
+.cs-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.cs-eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--blue);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cs-eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--blue);
+}
+
+.cs-title {
+  font-family: var(--font-title);
+  font-size: var(--text-3xl);
+  letter-spacing: 2px;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+
+.cs-sub {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.5);
+  font-weight: 300;
+  line-height: 1.65;
+  max-width: 400px;
+}
+
+.cs-list {
+  display: flex;
+  flex-direction: column;
+  border: 0.5px solid rgba(0,200,255,0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--card-bg);
+}
+
+.cs-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem;
+  border-bottom: 0.5px solid var(--border);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.cs-row:last-child { border-bottom: none; }
+.cs-row:hover { background: rgba(0,200,255,0.03); }
+
+.cs-num {
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  color: rgba(0,200,255,0.1);
+  line-height: 1;
+  width: 36px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.cs-body { flex: 1; min-width: 0; }
+
+.cs-row-title {
+  font-family: var(--font-sub);
+  font-size: var(--text-md);
+  color: var(--white);
+  font-weight: 500;
+  line-height: 1.35;
+  margin-bottom: 0.35rem;
+}
+
+.cs-row-excerpt {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.45);
+  font-weight: 300;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+
+.cs-arrow {
+  font-size: var(--text-md);
+  color: rgba(0,200,255,0.3);
+  flex-shrink: 0;
+  padding-top: 4px;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.cs-row:hover .cs-arrow {
+  color: var(--blue);
+  transform: translateX(3px);
+}
+
+/* sm — large phones (480px+) */
+@media (min-width: 480px) {
+  .cs-band { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+/* md — tablets (768px+) */
+@media (min-width: 768px) {
+  .cs-band { padding: 4rem 2rem 5rem; }
+  .cs-inner {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 3rem;
+  }
+  .cs-header { width: 260px; flex-shrink: 0; position: sticky; top: 80px; }
+  .cs-list { flex: 1; }
+}
+
+/* lg — laptops (1024px+) */
+@media (min-width: 1024px) {
+  .cs-band { padding: 4rem 2.5rem 5rem; }
+  .cs-header { width: 280px; }
+}
+
+/* xl — standard desktops (1280px+) */
+@media (min-width: 1280px) {
+  .cs-header { width: 300px; }
 }
 </style>

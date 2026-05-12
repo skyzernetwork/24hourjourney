@@ -26,7 +26,7 @@ const categoryMeta: Record<string, { label: string; abbr: string; colorClass: st
   'case-studies':     { label: 'Case Study',       abbr: 'CASE',   colorClass: 'tag-c', dotClass: 'dot-c' },
 };
 
-const collections = ['for-business', 'design', 'portfolios', 'behind-the-build', 'guides'] as const;
+const collections = ['for-business', 'design', 'portfolios', 'behind-the-build', 'guides', 'case-studies'] as const;
 
 const counts = Object.fromEntries(
   await Promise.all(
@@ -80,6 +80,7 @@ const postsWithImages = await Promise.all(
       <button class="fbtn" data-filter="portfolios">Portfolios <span class="fbtn-count">{counts['portfolios']}</span></button>
       <button class="fbtn" data-filter="behind-the-build">Behind the Build <span class="fbtn-count">{counts['behind-the-build']}</span></button>
       <button class="fbtn" data-filter="guides">Guides <span class="fbtn-count">{counts['guides']}</span></button>
+      <button class="fbtn" data-filter="case-studies">Case Studies <span class="fbtn-count">{counts['case-studies']}</span></button>
     </div>
   </div>
 
@@ -170,6 +171,10 @@ const postsWithImages = await Promise.all(
             <button class="sb-cat" data-filter="guides">
               <span class="sb-cat-label"><span class="sb-dot dot-w"></span>Guides</span>
               <span class="sb-cat-num">{counts['guides']}</span>
+            </button>
+            <button class="sb-cat" data-filter="case-studies">
+              <span class="sb-cat-label"><span class="sb-dot dot-c"></span>Case Studies</span>
+              <span class="sb-cat-num">{counts['case-studies']}</span>
             </button>
           </div>
         </div>
