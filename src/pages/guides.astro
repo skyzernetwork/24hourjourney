@@ -1,0 +1,533 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import { getPostImage } from '@/lib/getPostImage';
+
+const allPosts = (await getCollection('guides').catch(() => []))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+
+const featured = allPosts.find(p => p.data.featured) ?? allPosts[0];
+
+const postsWithImages = await Promise.all(
+  allPosts.map(async (post) => ({
+    post,
+    coverImage: post.data.cover ? await getPostImage(post.data.cover) : null,
+  }))
+);
+
+const featuredData = postsWithImages.find(({ post }) => post === featured);
+const restWithImages = postsWithImages.filter(({ post }) => post !== featured);
+
+const subMeta: Record<string, { label: string; colorClass: string }> = {
+  'guide':      { label: 'Guide',      colorClass: 'tag-w' },
+  'ecommerce':  { label: 'E-Commerce', colorClass: 'tag-w' },
+  'design':     { label: 'Design',     colorClass: 'tag-m' },
+};
+---
+
+<Layout
+  title="Guides | 24 Hour Journey"
+  description="Step-by-step guides for building websites, SEO, and digital strategy."
+  url="https://24hourjourney.blog/guides"
+  image_preview="/icons/preview.png"
+  type="website"
+>
+  <!-- PAGE HEADER -->
+  <header class="page-header">
+    <div class="header-bg"></div>
+    <div class="header-inner">
+      <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>Guides</span></div>
+      <div class="header-tag">GUIDES</div>
+      <h1 class="header-title">Learn it.<br/><span class="accent-text">Build it.</span></h1>
+      <p class="header-desc">Step-by-step, beginner-friendly guides for getting your website from zero to working — without the jargon.</p>
+      <div class="header-stat">
+        <span class="stat-num">{allPosts.length}</span>
+        <span class="stat-label">guides</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+
+    {allPosts.length === 0 && (
+      <div class="empty-state">No guides yet — check back soon.</div>
+    )}
+
+    {featured && featuredData && (
+      <section class="featured-section">
+        <a href={`/guides/${featured.id}`} class="featured-post">
+          <div class="fp-img">
+            {featuredData.coverImage ? (
+              <Image src={featuredData.coverImage} alt={featured.data.title} class="fp-cover" />
+            ) : (
+              <div class="fp-img-placeholder"><span>GUIDE</span></div>
+            )}
+            <div class="fp-badge">Featured Guide</div>
+          </div>
+          <div class="fp-body">
+            {featured.data.subcategory && (
+              <span class={`tag ${subMeta[featured.data.subcategory]?.colorClass ?? 'tag-w'}`}>
+                {subMeta[featured.data.subcategory]?.label ?? featured.data.subcategory}
+              </span>
+            )}
+            <h2 class="fp-title">{featured.data.title}</h2>
+            <p class="fp-excerpt">{featured.data.description}</p>
+            <div class="fp-footer">
+              <span>{featured.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              <span class="fp-read">Start reading →</span>
+            </div>
+          </div>
+        </a>
+      </section>
+    )}
+
+    {restWithImages.length > 0 && (
+      <section class="guides-section">
+        <div class="section-label">All Guides</div>
+        <!-- Two-column card layout with step-feel numbering -->
+        <div class="guides-grid">
+          {restWithImages.map(({ post, coverImage }, i) => {
+            const sub = subMeta[post.data.subcategory ?? ''] ?? { label: 'Guide', colorClass: 'tag-w' };
+            return (
+              <a href={`/guides/${post.id}`} class="guide-card">
+                <div class="gc-header">
+                  <span class="gc-num">{String(i + 2).padStart(2, '0')}</span>
+                  <span class={`tag ${sub.colorClass}`}>{sub.label}</span>
+                </div>
+                <div class="gc-img">
+                  {coverImage ? (
+                    <Image src={coverImage} alt={post.data.title} class="gc-cover" />
+                  ) : (
+                    <div class="gc-placeholder"><span>GUIDE</span></div>
+                  )}
+                </div>
+                <div class="gc-body">
+                  <h3 class="gc-title">{post.data.title}</h3>
+                  <p class="gc-excerpt">{post.data.description}</p>
+                  <div class="gc-footer">
+                    <span>{post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span class="gc-cta">Read guide →</span>
+                  </div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+  </main>
+</Layout>
+
+<style>
+/* ── PAGE HEADER ── */
+.page-header {
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 1.25rem 3rem;
+  margin-top: var(--space-2xl);
+  border-bottom: 0.5px solid var(--border);
+}
+
+.header-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 100% 50%, rgba(200,200,200,0.04) 0%, transparent 70%),
+    radial-gradient(circle at 0% 100%, rgba(0,200,255,0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.header-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.breadcrumb a { color: var(--muted); text-decoration: none; }
+.breadcrumb a:hover { color: #c8c8c8; }
+.breadcrumb span:last-child { color: #c8c8c8; }
+
+.header-tag {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 3px;
+  color: #c8c8c8;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-tag::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: #c8c8c8;
+}
+
+.header-title {
+  font-family: var(--font-title);
+  font-size: var(--text-4xl);
+  line-height: 1;
+  letter-spacing: 1px;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.accent-text {
+  background: linear-gradient(90deg, #c8c8c8, var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-desc {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.55);
+  max-width: 480px;
+  line-height: 1.7;
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+}
+
+.header-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.stat-num {
+  font-family: var(--font-title);
+  font-size: var(--text-3xl);
+  color: #c8c8c8;
+  line-height: 1;
+}
+
+.stat-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── MAIN ── */
+.page-main {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 1.25rem 4rem;
+}
+
+.empty-state {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  font-family: var(--font-display);
+  padding: 4rem 0;
+  text-align: center;
+}
+
+/* ── FEATURED ── */
+.featured-section {
+  padding: 2.5rem 0 2rem;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+
+.featured-post {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+  border: 0.5px solid rgba(200,200,200,0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+
+.featured-post:hover { border-color: rgba(200,200,200,0.35); }
+
+.fp-img {
+  position: relative;
+  height: 240px;
+  background: #111115;
+  overflow: hidden;
+}
+
+.fp-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fp-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #111115, #0d0d12);
+}
+
+.fp-img-placeholder span {
+  font-family: var(--font-title);
+  font-size: var(--text-4xl);
+  letter-spacing: 4px;
+  color: rgba(200,200,200,0.07);
+}
+
+.fp-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(200,200,200,0.07);
+  border: 0.5px solid rgba(200,200,200,0.25);
+  color: #c8c8c8;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.fp-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.fp-title {
+  font-family: var(--font-sub);
+  font-size: var(--text-2xl);
+  line-height: 1.2;
+  color: var(--white);
+  letter-spacing: 0.5px;
+}
+
+.fp-excerpt {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.55);
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+.fp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 0.5px solid var(--border);
+  padding-top: 1rem;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.fp-read { color: #c8c8c8; }
+
+/* ── GUIDES GRID ── */
+.section-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 0.5px;
+  background: var(--border);
+}
+
+.guides-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.guide-card {
+  background: var(--card-bg);
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.guide-card:hover {
+  border-color: rgba(200,200,200,0.25);
+  transform: translateY(-2px);
+}
+
+.gc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.1rem 0.6rem;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.gc-num {
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  color: rgba(200,200,200,0.1);
+  line-height: 1;
+}
+
+.gc-img {
+  height: 150px;
+  overflow: hidden;
+  background: #111115;
+}
+
+.gc-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.guide-card:hover .gc-cover { transform: scale(1.03); }
+
+.gc-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #111115, #0d0d12);
+}
+
+.gc-placeholder span {
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  letter-spacing: 2px;
+  color: rgba(200,200,200,0.06);
+}
+
+.gc-body {
+  padding: 1rem 1.1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gc-title {
+  font-family: var(--font-sub);
+  font-size: var(--text-md);
+  color: var(--white);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.gc-excerpt {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.48);
+  font-weight: 300;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.gc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 0.5px solid var(--border);
+  padding-top: 0.75rem;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.gc-cta { color: #c8c8c8; }
+
+/* Tags */
+.tag {
+  width: fit-content;
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-family: var(--font-display);
+  padding: 3px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 0.5px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+}
+
+.tag-c { border-color: rgba(0,200,255,0.3);   color: var(--blue);    background: rgba(0,200,255,0.05); }
+.tag-m { border-color: rgba(204,0,255,0.3);   color: #cc66ff;        background: rgba(204,0,255,0.05); }
+.tag-g { border-color: rgba(0,255,136,0.3);   color: #00dd77;        background: rgba(0,255,136,0.05); }
+.tag-a { border-color: rgba(255,170,0,0.3);   color: #ffaa00;        background: rgba(255,170,0,0.05); }
+.tag-w { border-color: rgba(200,200,200,0.2); color: #c8c8c8;        background: rgba(200,200,200,0.04); }
+
+/* ── MEDIA QUERIES ── */
+
+/* sm — large phones (480px+) */
+@media (min-width: 480px) {
+  .guides-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* md — tablets (768px+) */
+@media (min-width: 768px) {
+  .page-header { padding: 5rem 2rem 3.5rem; }
+  .header-title { font-size: var(--text-5xl); }
+  .page-main { padding: 0 2rem 4rem; }
+
+  .featured-post { flex-direction: row; }
+
+  .fp-img {
+    width: 380px;
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  .fp-body {
+    padding: 2rem;
+    justify-content: center;
+  }
+
+  .fp-title { font-size: var(--text-3xl); }
+}
+
+/* lg — laptops (1024px+) */
+@media (min-width: 1024px) {
+  .guides-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* xl — standard desktops (1280px+) */
+@media (min-width: 1280px) {
+  .guides-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+</style>

@@ -1,0 +1,526 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import { getPostImage } from '@/lib/getPostImage';
+
+const allPosts = (await getCollection('portfolios').catch(() => []))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+
+const featured = allPosts.find(p => p.data.featured) ?? allPosts[0];
+
+const postsWithImages = await Promise.all(
+  allPosts.map(async (post) => ({
+    post,
+    coverImage: post.data.cover ? await getPostImage(post.data.cover) : null,
+  }))
+);
+
+const featuredData = postsWithImages.find(({ post }) => post === featured);
+const restWithImages = postsWithImages.filter(({ post }) => post !== featured);
+
+const subMeta: Record<string, { label: string; colorClass: string }> = {
+  'portfolio-build': { label: 'Portfolio Build', colorClass: 'tag-g' },
+  'redesign':        { label: 'Redesign',        colorClass: 'tag-a' },
+  'guide':           { label: 'Guide',           colorClass: 'tag-w' },
+  'case-study':      { label: 'Case Study',      colorClass: 'tag-c' },
+};
+---
+
+<Layout
+  title="Portfolios | 24 Hour Journey"
+  description="Showcase your work in the best light — from concept to completion."
+  url="https://24hourjourney.blog/portfolios"
+  image_preview="/icons/preview.png"
+  type="website"
+>
+  <!-- PAGE HEADER -->
+  <header class="page-header">
+    <div class="header-bg"></div>
+    <div class="header-inner">
+      <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>Portfolios</span></div>
+      <div class="header-tag">PORTFOLIOS</div>
+      <h1 class="header-title">Show your work<br/><span class="accent-text">the right way.</span></h1>
+      <p class="header-desc">Portfolio strategy, inspiration, and real builds for creatives and freelancers who want to stand out.</p>
+      <div class="header-stat">
+        <span class="stat-num">{allPosts.length}</span>
+        <span class="stat-label">articles</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+
+    {allPosts.length === 0 && (
+      <div class="empty-state">No posts yet — check back soon.</div>
+    )}
+
+    {featured && featuredData && (
+      <section class="featured-section">
+        <a href={`/portfolios/${featured.id}`} class="featured-post">
+          <div class="fp-img">
+            {featuredData.coverImage ? (
+              <Image src={featuredData.coverImage} alt={featured.data.title} class="fp-cover" />
+            ) : (
+              <div class="fp-img-placeholder"><span>PORT</span></div>
+            )}
+            <div class="fp-badge">Featured</div>
+          </div>
+          <div class="fp-body">
+            <div class="fp-sub">
+              {featured.data.subcategory && (
+                <span class={`tag ${subMeta[featured.data.subcategory]?.colorClass ?? 'tag-g'}`}>
+                  {subMeta[featured.data.subcategory]?.label ?? featured.data.subcategory}
+                </span>
+              )}
+            </div>
+            <h2 class="fp-title">{featured.data.title}</h2>
+            <p class="fp-excerpt">{featured.data.description}</p>
+            <div class="fp-footer">
+              <span class="fp-date">{featured.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              <span class="fp-read">Read article →</span>
+            </div>
+          </div>
+        </a>
+      </section>
+    )}
+
+    {restWithImages.length > 0 && (
+      <section class="articles-section">
+        <div class="section-label">All Articles</div>
+        <!-- Card grid with taller cards — portfolio showcase feel -->
+        <div class="portfolio-grid">
+          {restWithImages.map(({ post, coverImage }) => {
+            const sub = subMeta[post.data.subcategory ?? ''] ?? { label: 'Portfolios', colorClass: 'tag-g' };
+            return (
+              <a href={`/portfolios/${post.id}`} class="port-card">
+                <div class="pc-img">
+                  {coverImage ? (
+                    <Image src={coverImage} alt={post.data.title} class="pc-cover" />
+                  ) : (
+                    <div class="pc-placeholder"><span>PORT</span></div>
+                  )}
+                  <div class="pc-overlay">
+                    <span class={`tag ${sub.colorClass}`}>{sub.label}</span>
+                  </div>
+                </div>
+                <div class="pc-body">
+                  <h3 class="pc-title">{post.data.title}</h3>
+                  <p class="pc-excerpt">{post.data.description}</p>
+                  <div class="pc-footer">
+                    <span>{post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span class="pc-cta">Read →</span>
+                  </div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+  </main>
+</Layout>
+
+<style>
+/* ── PAGE HEADER ── */
+.page-header {
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 1.25rem 3rem;
+  margin-top: var(--space-2xl);
+  border-bottom: 0.5px solid var(--border);
+}
+
+.header-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 100% 30%, rgba(0,255,136,0.06) 0%, transparent 70%),
+    radial-gradient(circle at 5% 90%, rgba(0,200,255,0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.header-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.breadcrumb a { color: var(--muted); text-decoration: none; }
+.breadcrumb a:hover { color: #00dd77; }
+.breadcrumb span:last-child { color: #00dd77; }
+
+.header-tag {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 3px;
+  color: #00dd77;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-tag::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: #00dd77;
+}
+
+.header-title {
+  font-family: var(--font-title);
+  font-size: var(--text-4xl);
+  line-height: 1;
+  letter-spacing: 1px;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.accent-text {
+  background: linear-gradient(90deg, #00dd77, var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-desc {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.55);
+  max-width: 480px;
+  line-height: 1.7;
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+}
+
+.header-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.stat-num {
+  font-family: var(--font-title);
+  font-size: var(--text-3xl);
+  color: #00dd77;
+  line-height: 1;
+}
+
+.stat-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── MAIN ── */
+.page-main {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 1.25rem 4rem;
+}
+
+.empty-state {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  font-family: var(--font-display);
+  padding: 4rem 0;
+  text-align: center;
+}
+
+/* ── FEATURED ── */
+.featured-section {
+  padding: 2.5rem 0 2rem;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+
+.featured-post {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+  border: 0.5px solid rgba(0,255,136,0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+
+.featured-post:hover { border-color: rgba(0,255,136,0.4); }
+
+.fp-img {
+  position: relative;
+  height: 240px;
+  background: #0a1a10;
+  overflow: hidden;
+}
+
+.fp-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fp-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #091510, #0a1a10);
+}
+
+.fp-img-placeholder span {
+  font-family: var(--font-title);
+  font-size: var(--text-4xl);
+  letter-spacing: 4px;
+  color: rgba(0,255,136,0.08);
+}
+
+.fp-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(0,255,136,0.08);
+  border: 0.5px solid rgba(0,255,136,0.3);
+  color: #00dd77;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.fp-body { padding: 1.5rem; }
+.fp-sub { margin-bottom: 0.75rem; }
+
+.fp-title {
+  font-family: var(--font-sub);
+  font-size: var(--text-2xl);
+  line-height: 1.2;
+  color: var(--white);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.fp-excerpt {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.55);
+  font-weight: 300;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+
+.fp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 0.5px solid var(--border);
+  padding-top: 1rem;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.fp-read { color: #00dd77; }
+
+/* ── PORTFOLIO GRID ── */
+.section-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 0.5px;
+  background: var(--border);
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.port-card {
+  background: var(--card-bg);
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.port-card:hover {
+  border-color: rgba(0,255,136,0.25);
+  transform: translateY(-3px);
+}
+
+.pc-img {
+  position: relative;
+  height: 200px;
+  background: #091510;
+  overflow: hidden;
+}
+
+.pc-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.port-card:hover .pc-cover { transform: scale(1.03); }
+
+.pc-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #091510, #0a1a0a);
+}
+
+.pc-placeholder span {
+  font-family: var(--font-title);
+  font-size: var(--text-3xl);
+  letter-spacing: 3px;
+  color: rgba(0,255,136,0.08);
+}
+
+.pc-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.pc-body {
+  padding: 1rem 1.1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pc-title {
+  font-family: var(--font-sub);
+  font-size: var(--text-md);
+  color: var(--white);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.pc-excerpt {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.48);
+  font-weight: 300;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.pc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 0.5px solid var(--border);
+  padding-top: 0.75rem;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.pc-cta { color: #00dd77; }
+
+/* Tags */
+.tag {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-family: var(--font-display);
+  padding: 3px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 0.5px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+}
+
+.tag-c { border-color: rgba(0,200,255,0.3);   color: var(--blue);    background: rgba(0,200,255,0.05); }
+.tag-m { border-color: rgba(204,0,255,0.3);   color: #cc66ff;        background: rgba(204,0,255,0.05); }
+.tag-g { border-color: rgba(0,255,136,0.3);   color: #00dd77;        background: rgba(0,255,136,0.05); }
+.tag-a { border-color: rgba(255,170,0,0.3);   color: #ffaa00;        background: rgba(255,170,0,0.05); }
+.tag-w { border-color: rgba(200,200,200,0.2); color: #c8c8c8;        background: rgba(200,200,200,0.04); }
+
+/* ── MEDIA QUERIES ── */
+
+/* sm — large phones (480px+) */
+@media (min-width: 480px) {
+  .portfolio-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* md — tablets (768px+) */
+@media (min-width: 768px) {
+  .page-header { padding: 5rem 2rem 3.5rem; }
+  .header-title { font-size: var(--text-5xl); }
+  .page-main { padding: 0 2rem 4rem; }
+
+  .featured-post { flex-direction: row; }
+
+  .fp-img {
+    width: 400px;
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  .fp-body {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .fp-title { font-size: var(--text-3xl); }
+}
+
+/* lg — laptops (1024px+) */
+@media (min-width: 1024px) {
+  .portfolio-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* xl — standard desktops (1280px+) */
+@media (min-width: 1280px) {
+  .portfolio-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+</style>

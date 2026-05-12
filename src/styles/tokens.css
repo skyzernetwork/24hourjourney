@@ -1,0 +1,15 @@
+:root {
+    /* Core brand */
+    --black: #0a0a0a;
+    --white: #f5f3ef;
+    --blue: #00c8ff;
+    --purple: #b074ff;
+    --mid: #141414;
+    --card-bg: #111;
+    --muted: #777;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(0, 140, 255, 0.22);
+
+    /* Items */
+    --nav-background: #0a0a0ad0;
+}

@@ -1,0 +1,86 @@
+---
+import "@/styles/base.css";
+import "@/styles/root.css";
+import "@/styles/tokens.css";
+
+import Nav from "@/components/Nav.astro";
+import Footer from "@/components/Footer.astro";
+
+const {
+  title = "24 Hour Journey | Web Design, SEO & Digital Insights",
+  description = "24 Hour Journey is a web design and digital strategy blog by Skyzer Networks sharing insights on websites, SEO, development, branding, research, and online business growth.",
+  image_preview = "/icons/preview.png",
+  url = "https://24hourjourney.blog",
+} = Astro.props;
+---
+
+<html lang="en">
+    <head>
+        <!-- Basic Setup -->
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- Title -->
+        <title>{title}</title>
+
+        <!-- SEO -->
+        <meta name="description" content={description} />
+        <meta name="keywords" content="web design blog, website development, SEO tips, digital strategy, business websites, online presence, web agency blog, website documentation, frontend development, responsive web design, branding, UI UX design, website optimization, web research, website importance, modern websites, custom websites, web development articles, Skyzer Networks, 24 Hour Journey, technical blog, business growth online, website insights, digital marketing, startup websites" />
+        <meta name="author" content="Skyzer Networks" />
+
+        <!-- Theme Color -->
+        <meta name="theme-color" content="#0a0a0a" />
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png" />
+
+        <link rel="icon" href="/icons/dark.svg" media="(prefers-color-scheme: light)" />
+
+        <!-- Apple / iOS -->
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="Skyzer Networks" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+
+        <!-- PWA Manifest -->
+        <link rel="manifest" href="/site.webmanifest" />
+
+        <!-- Open Graph -->
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={url} />
+        <meta property="og:image" content={image_preview} />
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={image_preview} />
+
+        <script type="application/ld+json">
+        {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "24 Hour Journey",
+        "url": "https://24hourjourney.blog",
+        "description": "24 Hour Journey is a web design and digital strategy blog by Skyzer Networks sharing insights on websites, SEO, development, branding, research, and online business growth.",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer support"
+        }
+        }
+        </script>
+    </head>
+
+  <body>
+    <Nav />
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+  </body>
+</html>
