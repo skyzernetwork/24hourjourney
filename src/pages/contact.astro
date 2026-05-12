@@ -1,0 +1,296 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout
+  title="Contact | 24 Hour Journey"
+  description="Get in touch with Skyzer Networks — reach out for web design inquiries, project questions, or general support."
+  url="https://24hourjourney.blog/contact"
+  image_preview="/icons/preview.png"
+>
+  <div class="contact-page">
+
+    <!-- PAGE HEADER -->
+    <header class="contact-header">
+      <div class="header-bg"></div>
+      <div class="header-inner">
+        <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>Contact</span></div>
+        <div class="header-tag">CONTACT</div>
+        <h1 class="header-title">Let's talk.<br/><span class="accent-text">We respond fast.</span></h1>
+        <p class="header-desc">Have a project in mind, a question, or just want to say hi? Fill out the form below and we'll get back to you.</p>
+      </div>
+    </header>
+
+    <!-- FORM SECTION -->
+    <section class="contact-body">
+      <div class="contact-inner">
+
+        <!-- LEFT: info -->
+        <div class="contact-info">
+          <div class="info-block">
+            <div class="info-label">Email us directly</div>
+            <a href="mailto:skyzernetworks@gmail.com" class="info-value">skyzernetworks@gmail.com</a>
+          </div>
+          <div class="info-block">
+            <div class="info-label">Based in</div>
+            <div class="info-value">United States</div>
+          </div>
+          <div class="info-block">
+            <div class="info-label">Response time</div>
+            <div class="info-value">Within 24 hours</div>
+          </div>
+          <div class="info-divider"></div>
+          <p class="info-note">We work with small businesses, freelancers, and creators. Whether you need a new site, a redesign, or just some honest advice — reach out.</p>
+        </div>
+
+        <!-- RIGHT: Tally form embed -->
+        <div class="form-wrap">
+            <h2 class="form-title">Contact Us!</h2>
+            <iframe
+                data-tally-src="https://tally.so/embed/2E1z6D?hideTitle=1&dynamicHeight=1" 
+                loading="lazy" 
+                width="100%" 
+                height="1200" 
+                title="24 Hour Journey"
+                class="tally-frame"
+            ></iframe>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</Layout>
+
+<script>
+  // Load Tally embed script
+  (function() {
+    const existing = document.querySelector('script[src="https://tally.so/widgets/embed.js"]');
+    if (existing) return;
+    const s = document.createElement('script');
+    s.src = 'https://tally.so/widgets/embed.js';
+    s.async = true;
+    document.head.appendChild(s);
+  })();
+</script>
+
+<style>
+/* ── PAGE ── */
+.contact-page {
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.contact-header {
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 1.25rem 3rem;
+  margin-top: var(--space-2xl);
+  border-bottom: 0.5px solid var(--border);
+}
+
+.header-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 100% 50%, rgba(0,200,255,0.06) 0%, transparent 70%),
+    radial-gradient(circle at 0% 100%, rgba(204,0,255,0.04) 0%, transparent 50%),
+    repeating-linear-gradient(
+      -45deg,
+      transparent, transparent 38px,
+      rgba(0,200,255,0.03) 38px,
+      rgba(174,0,255,0.025) 39px
+    );
+  pointer-events: none;
+}
+
+.header-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.breadcrumb a { color: var(--muted); text-decoration: none; }
+.breadcrumb a:hover { color: var(--blue); }
+.breadcrumb span:last-child { color: var(--blue); }
+
+.header-tag {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 3px;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-tag::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--blue);
+}
+
+.header-title {
+  font-family: var(--font-title);
+  font-size: var(--text-4xl);
+  line-height: 1;
+  letter-spacing: 1px;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.accent-text {
+  background: linear-gradient(90deg, var(--blue), #cc66ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-desc {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.55);
+  max-width: 480px;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ── BODY ── */
+.contact-body {
+  padding: 3rem 1.25rem 5rem;
+}
+
+.contact-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* ── LEFT INFO ── */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.info-value {
+  font-family: var(--font-sub);
+  font-size: var(--text-md);
+  color: var(--white);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+a.info-value:hover { color: var(--blue); }
+
+.info-divider {
+  height: 0.5px;
+  background: var(--border);
+  margin: 0.5rem 0;
+}
+
+.info-note {
+  font-size: var(--text-sm);
+  color: rgba(245,243,239,0.45);
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 360px;
+}
+
+/* ── FORM ── */
+.form-wrap {
+  background: var(--card-bg);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  padding-bottom: var(--space-lg);
+}
+
+.form-title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  color: var(--white);
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.tally-frame {
+  width: 100%;
+  border: none;
+  display: block;
+}
+
+/* ── MEDIA QUERIES ── */
+
+/* sm — large phones (480px+) */
+@media (min-width: 480px) {
+  .contact-header { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .contact-body   { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+/* md — tablets (768px+) */
+@media (min-width: 768px) {
+  .contact-header {
+    padding: 5rem 2rem 3.5rem;
+  }
+  .header-title { font-size: var(--text-5xl); }
+  .contact-body { padding: 3.5rem 2rem 5rem; }
+}
+
+/* lg — laptops (1024px+) */
+@media (min-width: 1024px) {
+  .contact-header { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
+  .contact-body   { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
+
+  .contact-inner {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 4rem;
+  }
+
+  .contact-info {
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+  }
+
+  .form-wrap {
+    flex: 1;
+  }
+}
+
+/* xl — standard desktops (1280px+) */
+@media (min-width: 1280px) {
+  .contact-info { width: 300px; }
+}
+</style>

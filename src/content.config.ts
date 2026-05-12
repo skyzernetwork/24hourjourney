@@ -1,11 +1,13 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { z } from 'zod';  // ← z from zod directly
+import { z } from 'zod';
 
 const postSchema = ({ image }: { image: Function }) => z.object({
     title: z.string(),
     description: z.string(),
-    pubDate: z.coerce.date(),
+    pubDate: z.coerce.date().transform((date) => {
+        return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    }),
     author: z.string(),
     category: z.string(),
     subcategory: z.string().optional(),

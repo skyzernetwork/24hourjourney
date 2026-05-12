@@ -1,0 +1,227 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { marked } from 'marked';
+import { readFile } from 'fs/promises';
+import { resolve } from 'path';
+import matter from 'gray-matter';
+
+const raw = await readFile(resolve('src/content/legal/privacy.md'), 'utf-8');
+const { data: frontmatter, content } = matter(raw);
+const html = marked(content);
+
+const lastUpdated = frontmatter.lastUpdated
+  ? new Date(frontmatter.lastUpdated).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  : null;
+---
+
+<Layout title={frontmatter.title} description={frontmatter.description}>
+  <div class="legal-hero">
+    <div class="legal-stripe"></div>
+    <div class="legal-hero-inner">
+      <div class="legal-eyebrow">Legal</div>
+      <h1 class="legal-title">{frontmatter.title}</h1>
+      <div class="legal-meta">
+        {lastUpdated && <span>Last updated: {lastUpdated}</span>}
+        <a href="/terms" class="legal-switch">Terms of Service →</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="legal-main">
+    <div class="legal-body prose" set:html={html} />
+  </main>
+</Layout>
+
+<style>
+/* ── HERO ── */
+.legal-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(3rem, 8vw, 5rem) 1.25rem clamp(2rem, 5vw, 3rem);
+  border-bottom: 0.5px solid var(--border);
+  margin-top: var(--space-2xl);
+}
+
+.legal-stripe {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent, transparent 38px,
+    rgba(174, 0, 255, 0.05) 38px,
+    rgba(0, 200, 255, 0.04) 39px
+  );
+  pointer-events: none;
+}
+
+.legal-hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.legal-eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--blue);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legal-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--blue);
+}
+
+.legal-title {
+  font-family: var(--font-title);
+  font-size: var(--text-4xl);
+  letter-spacing: 1px;
+  line-height: 1.05;
+  color: var(--white);
+  margin-bottom: 1.25rem;
+}
+
+.legal-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-family: var(--font-display);
+}
+
+.legal-switch {
+  color: var(--purple, #cc66ff);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.legal-switch:hover { opacity: 0.7; }
+
+/* ── MAIN LAYOUT ── */
+.legal-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 5rem;
+}
+
+/* ── PROSE ── */
+.prose {
+  color: rgba(245,243,239,0.72);
+  font-size: var(--text-sm);
+  font-weight: 300;
+  line-height: 1.8;
+}
+
+.prose :global(h2) {
+  font-family: var(--font-title);
+  font-size: var(--text-xl);
+  letter-spacing: 1.5px;
+  color: var(--white);
+  margin: 2.5rem 0 0.9rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.prose :global(h3) {
+  font-family: var(--font-sub);
+  font-size: var(--text-md);
+  font-weight: 500;
+  color: var(--white);
+  margin: 1.75rem 0 0.6rem;
+}
+
+.prose :global(p) {
+  margin-bottom: 1.2rem;
+}
+
+.prose :global(ul),
+.prose :global(ol) {
+  padding-left: 1.5rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.prose :global(li) {
+  line-height: 1.7;
+}
+
+.prose :global(ul li)::marker {
+  color: var(--purple, #cc66ff);
+}
+
+.prose :global(ol li)::marker {
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+}
+
+.prose :global(strong) {
+  color: var(--white);
+  font-weight: 500;
+}
+
+.prose :global(a) {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.prose :global(a:hover) {
+  text-decoration: underline;
+}
+
+.prose :global(hr) {
+  border: none;
+  border-top: 0.5px solid var(--border);
+  margin: 2.5rem 0;
+}
+
+.prose :global(blockquote) {
+  border-left: 2px solid rgba(204,0,255,0.3);
+  padding: 0.6rem 1.1rem;
+  margin: 1.5rem 0;
+  color: rgba(245,243,239,0.5);
+  font-style: italic;
+  background: rgba(204,0,255,0.03);
+  border-radius: 0 4px 4px 0;
+}
+
+.prose :global(code) {
+  font-family: var(--font-display);
+  font-size: 0.85em;
+  background: rgba(255,255,255,0.06);
+  border: 0.5px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--blue);
+}
+
+/* ── MEDIA QUERIES ── */
+@media (min-width: 480px) {
+  .legal-hero { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .legal-main { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+@media (min-width: 768px) {
+  .legal-hero { padding-left: 2rem; padding-right: 2rem; }
+  .legal-main { padding-left: 2rem; padding-right: 2rem; padding-top: 3rem; }
+  .legal-title { font-size: var(--text-5xl); }
+}
+
+@media (min-width: 1024px) {
+  .legal-hero { padding-left: 2.5rem; padding-right: 2.5rem; }
+  .legal-main { padding-left: 2.5rem; padding-right: 2.5rem; padding-top: 3.5rem; }
+}
+</style>
