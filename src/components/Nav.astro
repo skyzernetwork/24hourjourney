@@ -1,0 +1,719 @@
+---
+const links = [
+    { href: "/for-business", label: "For Business" },
+    { href: "/design", label: "Design" },
+    { href: "/portfolios", label: "Portfolios" },
+    { href: "/behind-the-build", label: "Behind The Build" },
+    { href: "/guides", label: "Guides" },
+    { href: "/about", label: "About" },
+];
+---
+
+<style>
+    .nav-container {
+        width: 100%;
+        height: clamp(2rem, 10vw + 2rem, 5rem);
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: var(--z-nav);
+        background: var(--nav-background);
+        border-bottom: 2px solid var(--border);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 var(--space-lg);
+    }
+
+    .nav-card {
+        display: none;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .nav-card-left {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--space-xs);
+        font-size: var(--text-2xl);
+        color: var(--white);
+        font-family: var(--font-title);
+        font-weight: 100;
+        letter-spacing: 2px;
+    }
+
+    .nav-card-middle {
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .nav-card-right {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--space-sm);
+    }
+
+    .logo-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--blue);
+        flex-shrink: 0;
+        margin-right: var(--space-xs);
+    }
+
+    .dot-name {
+        font-family: var(--font-display);
+        font-size: var(--text-sm);
+        color: rgb(136, 136, 136);
+    }
+
+    .nav-card-middle ul {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .nav-card-middle a {
+        color: var(--muted);
+        font-family: var(--font-sub);
+        font-size: var(--text-md);
+        text-align: center;
+        margin: 0 var(--space-sm);
+        transition: color 200ms ease-in-out;
+    }
+
+    .nav-card-middle a:hover { color: var(--white); }
+    .nav-card-middle a:focus { color: var(--white); transition: none; }
+
+    .hamburger {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        width: 40px;
+        height: 40px;
+        order: 1;
+        position: relative;
+        z-index: calc(var(--z-nav) + 2);
+        flex-shrink: 0;
+    }
+
+    .hamburger span {
+        display: block;
+        width: 100%;
+        height: 2px;
+        background-color: var(--white);
+        border-radius: 2px;
+        transform-origin: center;
+        position: relative;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .hamburger.is-open span:nth-child(1) {
+        transform: translateY(6px) rotate(45deg);
+    }
+
+    .hamburger.is-open span:nth-child(2) {
+        transform: translateY(-6px) rotate(-45deg);
+    }
+
+    /* Search wrapper — replaces standalone .search-input */
+    .search-wrapper {
+        position: relative;
+        display: none;
+        align-items: center;
+        order: -1;
+    }
+
+    .search-wrapper .search-input {
+        display: block;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        font-size: var(--text-sm);
+        font-family: var(--font-display);
+        border-radius: 20px;
+        color: white;
+        padding-right: 2.2rem;
+    }
+
+    .search-wrapper .search-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--blue);
+    }
+
+    .search-icon-btn {
+        position: absolute;
+        right: 18px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: rgb(136, 136, 136);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: color 0.2s ease;
+    }
+
+    .search-icon-btn:hover {
+        color: var(--white);
+    }
+
+    .subscribe-button {
+        display: none;
+        color: var(--black);
+        background: var(--blue);
+        border-radius: 20px;
+        font-size: var(--text-sm);
+        font-family: var(--font-display);
+        white-space: nowrap;
+        order: 0;
+    }
+
+    /* ── Drop-down Overlay ── */
+    .nav-overlay {
+        position: fixed;
+        top: clamp(2rem, 10vw + 2rem, 5rem);
+        left: 0;
+        width: 100%;
+        height: calc(100dvh - clamp(2rem, 10vw + 2rem, 5rem));
+        z-index: calc(var(--z-nav) + 1);
+        background: rgba(0, 0, 0, 0.96);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: var(--space-lg);
+        transform: translateY(-12px);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.35s ease, opacity 0.3s ease;
+    }
+
+    .nav-overlay.is-open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    /* Links */
+    .overlay-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .overlay-links li {
+        overflow: hidden;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .overlay-links li:first-child {
+        border-top: 1px solid var(--border);
+    }
+
+    .overlay-links a {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: var(--font-title);
+        font-size: clamp(1.3rem, 4vw, 2.2rem);
+        font-weight: 100;
+        letter-spacing: 2px;
+        color: var(--muted);
+        padding: var(--space-sm) 0;
+        text-decoration: none;
+        transform: translateY(20px);
+        opacity: 0;
+        transition:
+            transform 0.4s ease,
+            opacity 0.4s ease,
+            color 0.2s ease,
+            padding-left 0.2s ease;
+    }
+
+    .overlay-links a::after {
+        content: '→';
+        font-size: 0.8em;
+        opacity: 0;
+        transform: translateX(-6px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .overlay-links a:hover {
+        color: var(--white);
+        padding-left: var(--space-sm);
+    }
+
+    .overlay-links a:hover::after {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .nav-overlay.is-open .overlay-links a {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .overlay-links li:nth-child(1) a { transition-delay: 0.04s; }
+    .overlay-links li:nth-child(2) a { transition-delay: 0.08s; }
+    .overlay-links li:nth-child(3) a { transition-delay: 0.12s; }
+    .overlay-links li:nth-child(4) a { transition-delay: 0.16s; }
+    .overlay-links li:nth-child(5) a { transition-delay: 0.20s; }
+    .overlay-links li:nth-child(6) a { transition-delay: 0.24s; }
+
+    /* Footer */
+    .overlay-footer {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.4s ease 0.32s, transform 0.4s ease 0.32s;
+        padding: var(--space-xl) 0;
+    }
+
+    .nav-overlay.is-open .overlay-footer {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .overlay-footer-actions {
+        display: flex;
+        gap: var(--space-sm);
+        align-items: center;
+        flex-wrap: wrap;
+        padding-bottom: var(--space-lg);
+    }
+
+    .overlay-search-wrapper {
+        flex: 1;
+        min-width: 0;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .overlay-search {
+        width: 100%;
+        background: transparent;
+        border: 1px solid var(--border);
+        font-size: var(--text-sm);
+        font-family: var(--font-display);
+        padding: 10px var(--space-md);
+        padding-right: 2.5rem;
+        border-radius: 20px;
+        color: var(--white);
+        height: 40px;
+    }
+
+    .overlay-search:focus {
+        outline: none;
+        border-color: var(--blue);
+    }
+
+    .overlay-search-wrapper .search-icon-btn {
+        position: absolute;
+        right: 18px;
+        color: rgb(136, 136, 136);
+    }
+
+    .overlay-subscribe {
+        color: var(--black);
+        background: var(--blue);
+        padding: 0 var(--space-md);
+        border-radius: 20px;
+        font-size: var(--text-sm);
+        font-family: var(--font-display);
+        text-decoration: none;
+        white-space: nowrap;
+        height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .overlay-footer-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+        padding-top: var(--space-lg);
+        border-top: 1px solid var(--border);
+    }
+
+    .overlay-copyright {
+        font-family: var(--font-display);
+        font-size: var(--text-xs);
+        color: rgb(80, 80, 80);
+    }
+
+    .overlay-meta-links {
+        display: flex;
+        gap: var(--space-sm);
+    }
+
+    .overlay-meta-links a {
+        font-family: var(--font-display);
+        font-size: var(--text-xs);
+        color: rgb(100, 100, 100);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .overlay-meta-links a:hover {
+        color: var(--white);
+    }
+
+    /* Breakpoints */
+    @media (min-width: 768px) {
+        .hamburger { order: 1; }
+
+        .subscribe-button {
+            display: block;
+            padding: var(--space-sm) var(--space-md);
+        }
+
+        .search-wrapper {
+            display: flex;
+            padding: var(--space-sm) 0;
+        }
+
+        .search-wrapper .search-input {
+            padding: var(--space-sm) var(--space-md);
+            padding-right: 2.2rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .hamburger { display: flex; order: 1; }
+
+        .search-wrapper .search-input {
+            padding: var(--space-xs) var(--space-sm);
+            padding-right: 2.2rem;
+        }
+
+        .subscribe-button {
+            padding: var(--space-xs) var(--space-sm);
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .nav-overlay { display: none; }
+        .nav-card-middle { display: flex; }
+        .hamburger { display: none; }
+    }
+
+    :focus:not(:focus-visible) { outline: none; }
+
+    /* Hide nav search/subscribe when overlay is open */
+    .hamburger.is-open ~ .search-wrapper,
+    .hamburger.is-open ~ .subscribe-button {
+        display: none !important;
+    }
+</style>
+
+<nav class="nav-container">
+    <a href="/" aria-label="Home Page" class="nav-card nav-card-left">
+        <span class="logo-dot"></span>
+        24HOURJOURNEY
+        <span class="dot-name">.blog</span>
+    </a>
+    <div class="nav-card nav-card-middle">
+        <ul>
+            {links.map((link) => (
+                <li><a href={link.href}>{link.label}</a></li>
+            ))}
+        </ul>
+    </div>
+    <div class="nav-card nav-card-right">
+        <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+        </button>
+        <div class="search-wrapper">
+            <input type="text" placeholder="Search..." class="search-input" aria-label="Search the site" />
+            <button class="search-icon-btn" aria-label="Submit search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<div class="nav-overlay" aria-hidden="true">
+    <ul class="overlay-links">
+        {links.map((link) => (
+            <li><a href={link.href}>{link.label}</a></li>
+        ))}
+    </ul>
+
+    <div class="overlay-footer">
+        <div class="overlay-footer-actions">
+            <div class="search-wrapper overlay-search-wrapper">
+                <input type="text" placeholder="Search articles..." class="overlay-search" aria-label="Search" />
+                <button class="search-icon-btn" aria-label="Submit search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="overlay-footer-meta">
+            <span class="overlay-copyright">© {new Date().getFullYear()} 24HOURJOURNEY. All rights reserved.</span>
+            <div class="overlay-meta-links">
+                <a href="/terms">Terms of Service</a>
+                <a href="/privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  // ── Hamburger / overlay ──
+  const hamburger = document.querySelector('.hamburger') as HTMLButtonElement;
+  const overlay   = document.querySelector('.nav-overlay') as HTMLElement;
+
+  function openOverlay() {
+    hamburger.classList.add('is-open');
+    overlay.classList.add('is-open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeOverlay() {
+    hamburger.classList.remove('is-open');
+    overlay.classList.remove('is-open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  hamburger?.addEventListener('click', () => {
+    overlay.classList.contains('is-open') ? closeOverlay() : openOverlay();
+  });
+
+  overlay?.querySelectorAll('.overlay-links a').forEach(link => {
+    link.addEventListener('click', closeOverlay);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (overlay?.classList.contains('is-open')) closeOverlay();
+      closeDropdown();
+    }
+  });
+
+  // ── Search tokenizer (same stop-word logic as search page) ──
+  const STOP = new Set(["a","an","the","and","or","of","to","in","is","it","with","for","on","at","by","as","be","was","that","this","are","from","too","not","but","so","do","my","we","i"]);
+
+  function tokenize(str: string): string[] {
+    return str.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !STOP.has(w));
+  }
+
+  function scorePost(post: any, words: string[]): number {
+    if (!words.length) return 0;
+    const title = (post.title ?? '').toLowerCase();
+    const desc  = (post.description ?? '').toLowerCase();
+    const tags  = (post.tags ?? []).join(' ').toLowerCase();
+    let score = 0;
+    for (const w of words) {
+      if (title.includes(w)) score += 10;
+      if (desc.includes(w))  score += 4;
+      if (tags.includes(w))  score += 6;
+    }
+    return score;
+  }
+
+  function highlight(text: string, words: string[]): string {
+    if (!words.length) return text;
+    const pattern = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    return text.replace(new RegExp(`(${pattern})`, 'gi'), '<mark>$1</mark>');
+  }
+
+  // ── Dropdown state ──
+  type Post = { title: string; description: string; tags: string[]; collection: string; url: string };
+  let posts: Post[] = [];
+  let dropdownEl: HTMLElement | null = null;
+  let activeInput: HTMLInputElement | null = null;
+
+  async function loadIndex() {
+    if (posts.length) return;
+    try {
+      const res  = await fetch('/search-index.json');
+      posts = await res.json();
+    } catch {
+      // fallback: no results silently
+    }
+  }
+
+  const categoryColors: Record<string, string> = {
+    'for-business':     '#00c8ff',
+    'design':           '#cc66ff',
+    'portfolios':       '#00dd77',
+    'behind-the-build': '#ffaa00',
+    'guides':           '#c8c8c8',
+    'case-studies':     '#00c8ff',
+  };
+
+  function buildDropdown(): HTMLElement {
+    const el = document.createElement('div');
+    el.id = 'nav-search-dropdown';
+    el.setAttribute('role', 'listbox');
+    el.style.cssText = `
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 340px;
+      background: #0b0f18;
+      border: 0.5px solid rgba(0,200,255,0.25);
+      border-radius: 6px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      z-index: 9999;
+      overflow: hidden;
+      display: none;
+    `;
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function positionDropdown(input: HTMLInputElement) {
+    if (!dropdownEl) return;
+    const wrap = input.closest('.search-wrapper') as HTMLElement;
+    if (!wrap) return;
+    const rect = wrap.getBoundingClientRect();
+    const dropH = dropdownEl.offsetHeight;
+    const isOverlay = input.classList.contains('overlay-search');
+    dropdownEl.style.top  = isOverlay
+      ? `${rect.top + window.scrollY - dropH - 8}px`
+      : `${rect.bottom + window.scrollY + 8}px`;
+    dropdownEl.style.left  = `${rect.left + window.scrollX}px`;
+    dropdownEl.style.width = `${Math.max(rect.width, 320)}px`;
+  }
+
+  function renderDropdown(results: Post[], words: string[], query: string) {
+    if (!dropdownEl) return;
+
+    if (!results.length) {
+      dropdownEl.innerHTML = `
+        <div style="padding:14px 16px;font-family:var(--font-display,monospace);font-size:12px;color:rgba(245,243,239,0.4);">
+          No results for "<strong style="color:rgba(245,243,239,0.6)">${query}</strong>"
+        </div>
+        <div style="padding:10px 16px;border-top:0.5px solid rgba(255,255,255,0.06);">
+          <a href="/search?q=${encodeURIComponent(query)}" style="font-size:12px;color:#00c8ff;text-decoration:none;font-family:var(--font-display,monospace);">
+            Search all posts for "${query}" →
+          </a>
+        </div>
+      `;
+      dropdownEl.style.display = 'block';
+      if (activeInput) positionDropdown(activeInput);
+      return;
+    }
+
+    const items = results.slice(0, 5).map(p => {
+      const color = categoryColors[p.collection] ?? '#00c8ff';
+      const titleH = highlight(p.title, words);
+      return `
+        <a href="${p.url}" role="option" style="
+          display:block;
+          padding:10px 16px;
+          text-decoration:none;
+          border-bottom:0.5px solid rgba(255,255,255,0.05);
+          transition:background 0.12s;
+        " onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
+          <div style="font-size:10px;font-family:var(--font-display,monospace);color:${color};letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">${p.collection.replace(/-/g,' ')}</div>
+          <div style="font-size:13px;font-family:var(--font-sub,sans-serif);color:rgba(245,243,239,0.9);line-height:1.3;">${titleH}</div>
+        </a>
+      `;
+    }).join('');
+
+    const footer = `
+      <a href="/search?q=${encodeURIComponent(query)}" style="
+        display:block;
+        padding:10px 16px;
+        font-size:12px;
+        color:#00c8ff;
+        text-decoration:none;
+        font-family:var(--font-display,monospace);
+        border-top:0.5px solid rgba(0,200,255,0.12);
+        transition:background 0.12s;
+      " onmouseover="this.style.background='rgba(0,200,255,0.05)'" onmouseout="this.style.background='transparent'">
+        See all results for "${query}" →
+      </a>
+    `;
+
+    dropdownEl.innerHTML = items + footer;
+    dropdownEl.style.display = 'block';
+    if (activeInput) positionDropdown(activeInput);
+
+    // Highlight marks
+    dropdownEl.querySelectorAll('mark').forEach(m => {
+      (m as HTMLElement).style.cssText = 'background:rgba(0,200,255,0.18);color:#00c8ff;border-radius:2px;padding:0 2px;';
+    });
+  }
+
+  function closeDropdown() {
+    if (dropdownEl) dropdownEl.style.display = 'none';
+  }
+
+  async function handleSearchInput(input: HTMLInputElement) {
+    const raw   = input.value.trim();
+    activeInput = input;
+
+    if (!dropdownEl) dropdownEl = buildDropdown();
+    positionDropdown(input);
+
+    if (!raw) { closeDropdown(); return; }
+
+    await loadIndex();
+
+    const words  = tokenize(raw);
+    const scored = posts
+      .map(p => ({ post: p, score: scorePost(p, words) }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    renderDropdown(scored.map(s => s.post), words, raw);
+  }
+
+  // ── Wire up all search inputs in the nav ──
+  function wireInput(input: HTMLInputElement) {
+    input.addEventListener('input', () => handleSearchInput(input));
+    input.addEventListener('focus', () => { if (input.value.trim()) handleSearchInput(input); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const q = input.value.trim();
+        if (q) { closeDropdown(); window.location.href = `/search?q=${encodeURIComponent(q)}`; }
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLInputElement>('.search-input, .overlay-search').forEach(wireInput);
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (dropdownEl && !dropdownEl.contains(e.target as Node)) {
+      const inputs = document.querySelectorAll('.search-input, .overlay-search');
+      const clickedInput = [...inputs].some(i => i.contains(e.target as Node));
+      if (!clickedInput) closeDropdown();
+    }
+  });
+
+  // Reposition on scroll/resize
+  window.addEventListener('resize', () => { if (activeInput) positionDropdown(activeInput); });
+</script>

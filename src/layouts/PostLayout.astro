@@ -1,0 +1,511 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  author: string;
+  category: string;
+  subcategory?: string;
+  tags?: string[];
+  cover?: string;
+}
+
+const { title, description, pubDate, author, category, subcategory, tags, cover } = Astro.props;
+
+const categoryMeta: Record<string, { label: string; colorClass: string; color: string }> = {
+  'for-business':     { label: 'For Business',    colorClass: 'tag-c', color: 'var(--blue)' },
+  'design':           { label: 'Design',           colorClass: 'tag-m', color: '#cc66ff'     },
+  'portfolios':       { label: 'Portfolios',       colorClass: 'tag-g', color: '#00dd77'     },
+  'behind-the-build': { label: 'Behind the Build', colorClass: 'tag-a', color: '#ffaa00'     },
+  'guides':           { label: 'Guides',           colorClass: 'tag-w', color: '#c8c8c8'     },
+  'case-studies':     { label: 'Case Study',       colorClass: 'tag-c', color: 'var(--blue)' },
+};
+
+const meta = categoryMeta[category] ?? { label: category, colorClass: 'tag-c', color: 'var(--blue)' };
+
+const formattedDate = pubDate.toLocaleDateString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+});
+---
+
+<Layout
+  title={`${title} | 24 Hour Journey`}
+  description={description}
+  url={`https://24hourjourney.blog/posts/${Astro.url.pathname.split("/").pop()}`}
+  image_preview={cover ?? "/icons/preview.png"}
+  type="article"
+>
+  <div class="post-wrap">
+
+    <!-- HEADER -->
+    <header class="post-header">
+      <div class="post-header-inner">
+        <nav class="post-breadcrumb">
+          <a href="/">Home</a>
+          <span class="bc-sep">→</span>
+          <a href={`/${category}`}>{meta.label}</a>
+        </nav>
+
+        <div class="post-tags-row">
+          <span class={`tag ${meta.colorClass}`}>{meta.label}</span>
+          {tags && tags.map(tag => (
+            <span class="tag tag-plain">#{tag}</span>
+          ))}
+        </div>
+
+        <h1 class="post-title">{title}</h1>
+        <p class="post-desc">{description}</p>
+
+        <div class="post-byline">
+          <div class="byline-avatar" style={`border-color: ${meta.color};`}>
+            {author.slice(0, 2).toUpperCase()}
+          </div>
+          <div class="byline-info">
+            <span class="byline-author">{author}</span>
+            <span class="byline-date">{formattedDate}</span>
+          </div>
+          <div class="byline-sep"></div>
+          <span class="byline-read">8 min read</span>
+        </div>
+      </div>
+
+      <!-- Accent bar keyed to category color -->
+      <div class="post-accent-bar" style={`background: linear-gradient(90deg, ${meta.color}, transparent);`}></div>
+    </header>
+
+    <!-- ARTICLE BODY -->
+    <div class="post-body-wrap">
+      <article class="post-body prose">
+        <slot />
+      </article>
+
+      <!-- BACK LINK -->
+      <div class="post-footer">
+        <a href={`/${category}`} class="back-link">← Back to {meta.label}</a>
+        <a href="/" class="back-link secondary">All posts</a>
+      </div>
+    </div>
+
+  </div>
+</Layout>
+
+<style>
+
+/* ── POST WRAP ── */
+.post-wrap {
+  max-width: 100%;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.post-header {
+  position: relative;
+  background: var(--mid, #0b0f18);
+  border-bottom: 0.5px solid var(--border);
+  padding: clamp(2.5rem, 8vw, 5rem) 1.25rem 2.5rem;
+  overflow: hidden;
+  margin-top: var(--space-2xl);
+}
+
+/* Subtle diagonal texture — mirrors the hero stripe */
+.post-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent, transparent 38px,
+    rgba(0, 200, 255, 0.04) 38px,
+    rgba(174, 0, 255, 0.035) 39px
+  );
+  pointer-events: none;
+}
+
+.post-header-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.post-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.post-breadcrumb a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.post-breadcrumb a:hover { color: var(--blue); }
+
+.bc-sep { opacity: 0.4; }
+
+.post-tags-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.tag {
+  background: rgba(255,255,255,0.05);
+  border: 0.5px solid var(--border);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-family: var(--font-display);
+  padding: 3px 9px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.tag-plain {
+  border-color: rgba(255,255,255,0.08);
+  color: rgba(245,243,239,0.35);
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.tag-c { border-color: rgba(0,200,255,0.3);   color: var(--blue);  background: rgba(0,200,255,0.06);  }
+.tag-m { border-color: rgba(204,0,255,0.3);   color: #cc66ff;      background: rgba(204,0,255,0.06);  }
+.tag-g { border-color: rgba(0,255,136,0.3);   color: #00dd77;      background: rgba(0,255,136,0.06);  }
+.tag-a { border-color: rgba(255,170,0,0.3);   color: #ffaa00;      background: rgba(255,170,0,0.06);  }
+.tag-w { border-color: rgba(200,200,200,0.2); color: #c8c8c8;      background: rgba(200,200,200,0.04);}
+
+.post-title {
+  font-family: var(--font-title);
+  font-size: clamp(1.75rem, 4vw + 1rem, 3rem);
+  line-height: 1.05;
+  letter-spacing: 0.5px;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.post-desc {
+  font-size: var(--text-md);
+  color: rgba(245,243,239,0.55);
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 600px;
+  margin-bottom: 2rem;
+}
+
+.post-byline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.byline-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 0.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: var(--text-xs);
+  color: var(--white);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.03);
+}
+
+.byline-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.byline-author {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--white);
+  font-family: var(--font-sub);
+}
+
+.byline-date {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-family: var(--font-display);
+}
+
+.byline-sep {
+  width: 0.5px;
+  height: 24px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.byline-read {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-family: var(--font-display);
+}
+
+/* Accent bar at the bottom of the header */
+.post-accent-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  opacity: 0.7;
+}
+
+/* ── ARTICLE BODY ── */
+.post-body-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+}
+
+/* PROSE — styled markdown output */
+.prose {
+  color: rgba(245,243,239,0.75);
+  font-size: var(--text-md);
+  font-weight: 300;
+  line-height: 1.85;
+  font-family: var(--font-sub);
+}
+
+.prose :global(h1),
+.prose :global(h2),
+.prose :global(h3),
+.prose :global(h4) {
+  font-family: var(--font-title);
+  color: var(--white);
+  line-height: 1.15;
+  margin-top: 2.5em;
+  margin-bottom: 0.75em;
+  letter-spacing: 0.5px;
+}
+
+.prose :global(h1) { font-size: clamp(1.6rem, 3vw + 0.5rem, 2.25rem); }
+.prose :global(h2) {
+  font-size: clamp(1.25rem, 2vw + 0.5rem, 1.6rem);
+  padding-bottom: 0.5em;
+  border-bottom: 0.5px solid var(--border);
+}
+.prose :global(h3) { font-size: clamp(1.05rem, 1.5vw + 0.4rem, 1.25rem); color: rgba(245,243,239,0.9); }
+.prose :global(h4) { font-size: var(--text-md); color: rgba(245,243,239,0.8); }
+
+.prose :global(p) {
+  margin-bottom: 1.5em;
+}
+
+.prose :global(a) {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 0.5px;
+  transition: color 0.15s;
+}
+
+.prose :global(a:hover) { color: #fff; }
+
+.prose :global(strong) {
+  color: var(--white);
+  font-weight: 600;
+}
+
+.prose :global(em) {
+  color: rgba(245,243,239,0.65);
+  font-style: italic;
+}
+
+.prose :global(ul),
+.prose :global(ol) {
+  margin-bottom: 1.5em;
+  padding-left: 1.5rem;
+}
+
+.prose :global(ul) { list-style: none; padding-left: 0; }
+
+.prose :global(ul li) {
+  position: relative;
+  padding-left: 1.25rem;
+  margin-bottom: 0.5em;
+}
+
+.prose :global(ul li::before) {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--blue);
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+
+.prose :global(ol) { list-style: decimal; }
+
+.prose :global(ol li) {
+  margin-bottom: 0.5em;
+  padding-left: 0.25rem;
+}
+
+.prose :global(ol li::marker) {
+  color: var(--blue);
+  font-family: var(--font-display);
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+.prose :global(blockquote) {
+  border-left: 2px solid var(--blue);
+  margin: 2em 0;
+  padding: 1rem 1.5rem;
+  background: rgba(0,200,255,0.04);
+  border-radius: 0 4px 4px 0;
+  font-style: italic;
+  color: rgba(245,243,239,0.6);
+  font-size: var(--text-md);
+}
+
+.prose :global(blockquote p) { margin-bottom: 0; }
+
+.prose :global(code) {
+  font-family: 'Menlo', 'Consolas', monospace;
+  font-size: 0.875em;
+  background: rgba(255,255,255,0.06);
+  border: 0.5px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  color: #cc66ff;
+}
+
+.prose :global(pre) {
+  background: #0b0f18;
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  margin-bottom: 1.5em;
+}
+
+.prose :global(pre code) {
+  background: none;
+  border: none;
+  padding: 0;
+  color: rgba(245,243,239,0.8);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.prose :global(hr) {
+  border: none;
+  border-top: 0.5px solid var(--border);
+  margin: 2.5em 0;
+}
+
+.prose :global(img) {
+  width: 100%;
+  border-radius: 6px;
+  border: 0.5px solid var(--border);
+  margin: 1.5em 0;
+}
+
+.prose :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5em;
+  font-size: var(--text-sm);
+}
+
+.prose :global(th) {
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 0.5px solid var(--border);
+  padding: 8px 12px;
+}
+
+.prose :global(td) {
+  padding: 8px 12px;
+  border-bottom: 0.5px solid rgba(255,255,255,0.04);
+  color: rgba(245,243,239,0.7);
+}
+
+.prose :global(tr:last-child td) { border-bottom: none; }
+
+/* ── FOOTER ── */
+.post-footer {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: 2.5rem;
+  margin-top: 2.5rem;
+  border-top: 0.5px solid var(--border);
+}
+
+.back-link {
+  font-size: var(--text-sm);
+  font-family: var(--font-display);
+  color: var(--blue);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.back-link:hover { color: var(--white); }
+
+.back-link.secondary {
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.back-link.secondary:hover { color: var(--white); }
+
+/* ── MEDIA QUERIES ── */
+@media (min-width: 480px) {
+  .post-header { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .post-body-wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+@media (min-width: 768px) {
+  .post-header { padding-left: 2rem; padding-right: 2rem; }
+  .post-body-wrap { padding-left: 2rem; padding-right: 2rem; }
+  .prose { font-size: var(--text-md); }
+}
+
+@media (min-width: 1024px) {
+  .post-header { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
+  .post-body-wrap { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
+}
+
+@media (min-width: 1280px) {
+  .post-body-wrap { padding-top: 3.5rem; padding-bottom: 5rem; }
+}
+</style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "${title}",
+  "description": "${description}",
+  "author": {
+    "@type": "Person",
+    "name": "${author}"
+  },
+  "datePublished": "${pubDate.toISOString()}",
+  "url": "https://24hourjourney.blog/posts/${slug}"
+}
+</script>

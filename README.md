@@ -1,1 +1,1 @@
-# 24hourjourney
+# 24 Hour Journey Blog
