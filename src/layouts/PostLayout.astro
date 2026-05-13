@@ -14,6 +14,13 @@ interface Props {
 
 const { title, description, pubDate, author, category, subcategory, tags, cover } = Astro.props;
 
+const initials = author
+  .trim()
+  .split(/\s+/)
+  .map(n => n[0])
+  .join("")
+  .toUpperCase();
+
 const categoryMeta: Record<string, { label: string; colorClass: string; color: string }> = {
   'for-business':     { label: 'For Business',    colorClass: 'tag-c', color: 'var(--blue)' },
   'design':           { label: 'Design',           colorClass: 'tag-m', color: '#cc66ff'     },
@@ -62,7 +69,7 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
 
         <div class="post-byline">
           <div class="byline-avatar" style={`border-color: ${meta.color};`}>
-            {author.slice(0, 2).toUpperCase()}
+            {initials.toUpperCase()} <!-- author.slice(0, 2). -->
           </div>
           <div class="byline-info">
             <span class="byline-author">{author}</span>
