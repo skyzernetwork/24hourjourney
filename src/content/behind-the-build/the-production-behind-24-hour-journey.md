@@ -1,5 +1,4 @@
 ---
-# ── REQUIRED ──────────────────────────────────────────────
 title: "The Production Behind 24 Hour Journey"
 description: "A 24-hour journey: how we built a website in a week."
 pubDate: 2026-05-12T12:00:00

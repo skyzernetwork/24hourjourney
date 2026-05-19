@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://24hourjourney.blog/sitemap.xml
+Sitemap: https://24hourjourney.blog/sitemap-index.xml

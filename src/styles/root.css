@@ -25,6 +25,9 @@
 
 /* Root Vars */
 :root {
+    /* Tells page dark theme */
+    color-scheme: dark;
+
     /* FONT FAMILY */
     --font-title: "Bebas", sans-serif;
     --font-sub: "DMS", sans-serif;

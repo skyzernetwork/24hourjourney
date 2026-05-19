@@ -71,7 +71,7 @@ const caseStudies = (await getCollection('case-studies').catch(() => []))
 
 <Layout>
   <!-- HERO -->
-  <section class="hero">
+  <header class="hero">
     <div class="hero-stripe"></div>
     <div class="hero-left">
       <div class="hero-eyebrow">A blog by Skyzer Networks</div>
@@ -117,10 +117,10 @@ const caseStudies = (await getCollection('case-studies').catch(() => []))
         </div>
       )}
     </div>
-  </section>
+  </header>
 
   <!-- CATEGORY STRIP -->
-  <div class="cat-strip">
+  <nav class="cat-strip">
     <a class="cat-item" href="/for-business">
       <div class="cat-name">For Business</div>
       <div class="cat-desc">Websites, online presence &amp; growth tips</div>
@@ -141,10 +141,14 @@ const caseStudies = (await getCollection('case-studies').catch(() => []))
       <div class="cat-name">Guides</div>
       <div class="cat-desc">Beginner-friendly how-tos</div>
     </a>
-  </div>
+    <a class="cat-item" href="/case-studies">
+      <div class="cat-name">Case Studies</div>
+      <div class="cat-desc">Deep dives into web and tech topics</div>
+    </a>
+  </nav>
 
   <!-- MAIN CONTENT -->
-  <main class="main">
+  <main class="main" id="main-content">
 
     <!-- RECENT POSTS -->
     <div class="section-header">

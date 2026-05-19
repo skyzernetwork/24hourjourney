@@ -26,6 +26,9 @@ body {
 
 html, body {
   overflow-x: hidden;
+  background: #0a0a0a;
+  color: white;
+  color-scheme: dark;
 }
 
 /* Media defaults */
@@ -66,4 +69,44 @@ select:focus {
   outline: none;
   /* replace with your own focus style, e.g: */
   box-shadow: 0 0 0 1px var(--blue);
+}
+
+/* Skip to main */
+.skip-link {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 9999;
+
+    /* Match the site's dark theme */
+    background: var(--mid);
+    color: var(--blue);
+    border: 1px solid var(--border-hover);
+    border-radius: 4px;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.6rem 1.2rem;
+
+    /* Hidden by default — only visible on focus */
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.skip-link:focus {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+}
+
+.skip-link:not(:focus) {
+    opacity: 0;
+    pointer-events: none;
 }
